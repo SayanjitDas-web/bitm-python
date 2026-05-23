@@ -1,41 +1,65 @@
+import threading
+
+
 class StudentManagementSystem:
 
     def __init__(self, org_name):
+
         self.storage = []
         self.org_name = org_name
         self.file_name = "data.txt"
+
+        self.lock = threading.Lock()
 
         open(self.file_name, "a").close()
 
         self.load_data()
 
     def load_data(self):
-        self.storage.clear()
 
-        with open(self.file_name, "r") as file:
-            lines = file.readlines()
+        with self.lock:
 
-            for line in lines:
-                line = line.strip()
+            self.storage.clear()
 
-                if line != "":
-                    name, roll, age = line.split(",")
+            with open(self.file_name, "r") as file:
 
-                    data = {
-                        "name": name,
-                        "roll": int(roll),
-                        "age": int(age)
-                    }
+                lines = file.readlines()
 
-                    self.storage.append(data)
+                for line in lines:
+
+                    line = line.strip()
+
+                    if line != "":
+
+                        name, roll, age = line.split(",")
+
+                        data = {
+                            "name": name,
+                            "roll": int(roll),
+                            "age": int(age)
+                        }
+
+                        self.storage.append(data)
 
     def save_data(self):
-        with open(self.file_name, "w") as file:
 
-            for student in self.storage:
-                file.write(
-                    f"{student['name']},{student['roll']},{student['age']}\n"
-                )
+        with self.lock:
+
+            with open(self.file_name, "w") as file:
+
+                for student in self.storage:
+
+                    file.write(
+                        f"{student['name']},{student['roll']},{student['age']}\n"
+                    )
+
+            print("\n[Thread] Data saved successfully.")
+
+    def threaded_save(self):
+
+        save_thread = threading.Thread(target=self.save_data)
+
+        save_thread.start()
 
     def add_student(self):
 
@@ -43,20 +67,23 @@ class StudentManagementSystem:
         student_roll = int(input("Enter roll no: "))
         student_age = int(input("Enter age: "))
 
-        for student in self.storage:
-            if student["roll"] == student_roll:
-                print("Student with that roll already exists.")
-                return
+        with self.lock:
 
-        data = {
-            "name": student_name,
-            "roll": student_roll,
-            "age": student_age
-        }
+            for student in self.storage:
 
-        self.storage.append(data)
+                if student["roll"] == student_roll:
+                    print("Student with that roll already exists.")
+                    return
 
-        self.save_data()
+            data = {
+                "name": student_name,
+                "roll": student_roll,
+                "age": student_age
+            }
+
+            self.storage.append(data)
+
+        self.threaded_save()
 
         print("Student added successfully!")
 
@@ -64,16 +91,18 @@ class StudentManagementSystem:
 
         student_roll = int(input("Enter roll number: "))
 
-        for student in self.storage:
+        with self.lock:
 
-            if student["roll"] == student_roll:
+            for student in self.storage:
 
-                self.storage.remove(student)
+                if student["roll"] == student_roll:
 
-                self.save_data()
+                    self.storage.remove(student)
 
-                print("Student deleted successfully.")
-                return
+                    self.threaded_save()
+
+                    print("Student deleted successfully.")
+                    return
 
         print("Student not found.")
 
@@ -83,52 +112,56 @@ class StudentManagementSystem:
 
         student_roll = int(input("Enter student roll: "))
 
-        for student in self.storage:
+        with self.lock:
 
-            if student["roll"] == student_roll:
+            for student in self.storage:
 
-                if option == "name":
+                if student["roll"] == student_roll:
 
-                    new_name = input("Enter new name: ")
+                    if option == "name":
 
-                    student["name"] = new_name
+                        new_name = input("Enter new name: ")
 
-                    self.save_data()
+                        student["name"] = new_name
 
-                    print("Student name updated successfully.")
+                        self.threaded_save()
 
-                elif option == "age":
+                        print("Student name updated successfully.")
 
-                    new_age = int(input("Enter new age: "))
+                    elif option == "age":
 
-                    student["age"] = new_age
+                        new_age = int(input("Enter new age: "))
 
-                    self.save_data()
+                        student["age"] = new_age
 
-                    print("Student age updated successfully.")
+                        self.threaded_save()
 
-                else:
-                    print("Invalid option.")
+                        print("Student age updated successfully.")
 
-                return
+                    else:
+                        print("Invalid option.")
+
+                    return
 
         print("Student not found.")
 
     def show_storage(self):
 
-        if len(self.storage) == 0:
-            print("No student records found.")
-            return
+        with self.lock:
 
-        print(f"\n===== {self.org_name} STUDENT RECORDS =====")
+            if len(self.storage) == 0:
+                print("No student records found.")
+                return
 
-        for student in self.storage:
+            print(f"\n===== {self.org_name} STUDENT RECORDS =====")
 
-            print("\n------------------")
-            print(f"Student Name : {student['name']}")
-            print(f"Student Roll : {student['roll']}")
-            print(f"Student Age  : {student['age']}")
-            print("------------------")
+            for student in self.storage:
+
+                print("\n------------------")
+                print(f"Student Name : {student['name']}")
+                print(f"Student Roll : {student['roll']}")
+                print(f"Student Age  : {student['age']}")
+                print("------------------")
 
 
 sms = StudentManagementSystem("GENEX")

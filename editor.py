@@ -27,7 +27,17 @@ def open_image():
     canvas.delete("all")
     canvas.create_image(0,0,anchor="nw",image=photo)
     
-button = tk.Button(root,text="Open Image", command=open_image)
-button.pack()
+def rotate_image():
+    global current_image, photo
+    
+    if current_image:
+        current_image = current_image.rotate(90,expand=True)
+        photo = ImageTk.PhotoImage(current_image)
+    
+        canvas.delete("all")
+        canvas.create_image(0,0,anchor="nw",image=photo)
+    
+tk.Button(root,text="Open Image", command=open_image).pack()
+tk.Button(root,text="Rotate Image", command=rotate_image).pack()
 
 root.mainloop()

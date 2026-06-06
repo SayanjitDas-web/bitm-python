@@ -46,28 +46,28 @@ class StudentManagementSystem:
             print("student isPresent: ",record["isPresent"])
             print("----------------------")
             
-# sms = StudentManagementSystem()
-# while(True):
-#     print()
-#     print("choose a option:")
-#     print("""
-#           add: +
-#           remove: -
-#           update: u
-#           show: s
-#           exit: q
-#     """)
-#     choice = input("enter an option: ")
-#     match choice:
-#         case "+":
-#             sms.addStudent()
-#         case "-":
-#             sms.removeStudent()
-#         case "u":
-#             sms.updateStudent()
-#         case "s":
-#             sms.showRecord()
-#         case "q":
-#             break
-#         case _:
-#             print("please choose an option.")
+sms = StudentManagementSystem()
+while(True):
+    print()
+    print("choose a option:")
+    print("""
+          add: +
+          remove: -
+          update: u
+          show: s
+          exit: q
+    """)
+    choice = input("enter an option: ")
+    match choice:
+        case "+":
+            sms.addStudent()
+        case "-":
+            sms.removeStudent()
+        case "u":
+            sms.updateStudent()
+        case "s":
+            sms.showRecord()
+        case "q":
+            break
+        case _:
+            print("please choose an option.")

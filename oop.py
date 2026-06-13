@@ -23,6 +23,7 @@ class Cat(Animal):
         print(f"{self.name} is making sound of a cat")
         
 animal = Animal("Dog")
+animal2 = Animal("Giraf")
         
 tiger1 = Tiger()
 cat1 = Cat()
